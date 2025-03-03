@@ -1,0 +1,48 @@
+local anvilEnabled = true
+local anvilConnection
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local plr = Players.LocalPlayer
+
+local function activateAnvil()
+    if anvilEnabled then
+        local c = 0
+        repeat 
+            RunService.RenderStepped:Wait()
+            c = c + 1
+        until (plr.Character 
+            and plr.Character:FindFirstChild("HumanoidRootPart") 
+            and plr:FindFirstChild("Backpack") 
+            and plr.Backpack:FindFirstChild("Anvil")) 
+            or c >= 200
+
+        if c < 200 then
+            local tool = plr.Backpack.Anvil
+            tool.Parent = plr.Character
+            task.wait(0.1)
+            tool:Activate()
+            if plr.Character:FindFirstChild("Anvil") then
+                while anvilEnabled do
+                    plr.Character.Anvil.send:FireServer(
+                        plr.Character.HumanoidRootPart.CFrame.p + Vector3.new(0, -1e8, 0)
+                    )
+                    task.wait(1)
+                    tool.Parent = plr.Backpack
+                    task.wait(30)
+                    if not anvilEnabled then break end
+                    tool.Parent = plr.Character
+                    task.wait(0.1)
+                    tool:Activate()
+                end
+            end
+        end
+    end
+end
+
+anvilConnection = plr.CharacterAdded:Connect(function()
+    activateAnvil()
+end)
+
+if plr.Character then
+    activateAnvil()
+end
